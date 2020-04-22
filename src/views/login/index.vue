@@ -106,6 +106,9 @@ export default {
         // 关闭loading
         this.loginLoading = false
 
+        // 将接口返回的用户相关的数据放到本地存储,本地存储只能是字符串,需要转成JSON格式的字符串
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
+
         // 跳转到首页
         // this.$router.push('/')
         this.$router.push({ name: 'home' })

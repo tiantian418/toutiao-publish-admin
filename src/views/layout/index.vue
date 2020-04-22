@@ -53,7 +53,7 @@ export default {
     // 除了登录接口,其它所有的接口都需要授权
     loadUserProfile () {
       getUserProfile().then(res => {
-        console.log(res)
+        // console.log(res)
         this.user = res.data.data
       })
     }

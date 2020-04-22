@@ -16,11 +16,11 @@ export const login = data => {
 export const getUserProfile = () => {
   return request({
     method: 'GET',
-    url: '/mp/v1_0/user/profile',
+    url: '/mp/v1_0/user/profile'
     // axios可以通过headers设置请求头
-    headers: {
-      // Bearer 空格token数据
-      Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MTg5MDkxMjYsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.EdKErKDqMc3snkYxqt02jSa8t9G44002yWKY3CMOMJg'
-    }
+    // headers: {
+    //   // Bearer 空格token数据
+    //   Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MTg5MDkxMjYsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.EdKErKDqMc3snkYxqt02jSa8t9G44002yWKY3CMOMJg'
+    // }
   })
 }
