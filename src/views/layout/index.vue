@@ -1,12 +1,12 @@
 <template>
     <el-container class="layout-container">
-      <el-aside class="aside" width="200px">
-        <app-aside class="aside-menu" />
+      <el-aside class="aside" width="auto">
+        <app-aside class="aside-menu" :is-collapse="isCollapse" />
       </el-aside>
       <el-container>
         <el-header class="header">
           <div>
-            <i class="el-icon-s-fold"></i>
+            <i :class="{'el-icon-s-fold': isCollapse, 'el-icon-s-unfold': !isCollapse}" @click="isCollapse = !isCollapse"></i>
             <span>江苏传智播客科技教育有限公司</span>
           </div>
           <el-dropdown>
@@ -38,7 +38,8 @@ export default {
   name: 'LayoutIndex',
   data () {
     return {
-      user: {} // 当前登录用户信息
+      user: {}, // 当前登录用户信息
+      isCollapse: false // 侧边菜单栏的展示状态
     }
   },
   components: {

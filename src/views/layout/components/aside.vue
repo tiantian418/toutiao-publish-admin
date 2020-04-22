@@ -1,5 +1,5 @@
 <template>
-   <el-menu class="nav-menu" default-active="/" background-color="#002033" text-color="#fff" active-text-color="#ffd04b" router >
+   <el-menu class="nav-menu" default-active="/" background-color="#002033" text-color="#fff" active-text-color="#ffd04b" router :collapse="isCollapse">
       <img class="aside_logo" src="./logo_admin.png" alt="">
       <el-menu-item index="/">
         <i class="el-icon-s-home"></i>
@@ -34,7 +34,14 @@
 
 <script>
 export default {
-  name: 'AppAside'
+  name: 'AppAside',
+  props: ['is-collapse'],
+  data () {
+    return {
+      // isCollapse: true
+    }
+  },
+  methods: {}
 }
 </script>
 

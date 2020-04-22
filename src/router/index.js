@@ -16,11 +16,11 @@ const routes = [
   },
   {
     path: '/',
-    name: 'layout',
+    // name: 'layout',
     component: Layout,
     children: [
       {
-        path: '', // path为空,回座位默认子路由渲染
+        path: '', // path为空,会作为默认子路由渲染
         name: 'home',
         component: Home
       }
