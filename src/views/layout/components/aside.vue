@@ -1,5 +1,6 @@
 <template>
    <el-menu class="nav-menu" default-active="/" background-color="#002033" text-color="#fff" active-text-color="#ffd04b" router >
+      <img class="aside_logo" src="./logo_admin.png" alt="">
       <el-menu-item index="/">
         <i class="el-icon-s-home"></i>
         <span slot="title">首页</span>
@@ -38,4 +39,9 @@ export default {
 </script>
 
 <style>
+.aside_logo {
+  width: 140px;
+  height: 35px;
+  margin: 15px 20px;
+}
 </style>
