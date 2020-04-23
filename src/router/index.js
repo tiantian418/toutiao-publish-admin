@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 在vue中,@表示src目录,就是src路径后面别忘了写 斜杠
-import Login from '@/views/login'
-import Home from '@/views/home'
-import Layout from '@/views/layout'
+import Login from '@/views/login/'
+import Home from '@/views/home/'
+import Layout from '@/views/layout/'
+import Article from '@/views/article/'
 
 Vue.use(VueRouter)
 
@@ -23,6 +24,11 @@ const routes = [
         path: '', // path为空,会作为默认子路由渲染
         name: 'home',
         component: Home
+      },
+      {
+        path: '/article',
+        name: 'article',
+        component: Article
       }
     ]
   }

@@ -90,7 +90,7 @@ export default {
   }
 
   .aside {
-    background-color: #d3dce6;
+    // background-color: #d3dce6;
     .aside-menu {
       height: 100%;
     }
@@ -105,7 +105,7 @@ export default {
   }
 
   .main {
-    background-color: #e9eef3;
+    background-color: #fff;
   }
 
   .avatar-wrap {
