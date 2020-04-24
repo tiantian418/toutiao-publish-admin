@@ -11,48 +11,44 @@
       <!-- 数据筛选表单 -->
       <el-form ref="form" :model="form" label-width="50px" size="mini">
       <el-form-item label="状态 :">
-        <el-radio-group v-model="form.resource">
-          <el-radio label="全部"></el-radio>
-          <el-radio label="草稿"></el-radio>
-          <el-radio label="待审核"></el-radio>
-          <el-radio label="审核通过"></el-radio>
-          <el-radio label="审核失败"></el-radio>
-          <el-radio label="已删除"></el-radio>
+        <el-radio-group v-model="status">
+          <!-- el-radio默认把label作为文本和选中之后的value值 -->
+          <el-radio :label="null">全部</el-radio>
+          <el-radio :label="0">草稿</el-radio>
+          <el-radio :label="1">待审核</el-radio>
+          <el-radio :label="2">审核通过</el-radio>
+          <el-radio :label="3">审核失败</el-radio>
+          <el-radio :label="4">已删除</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="频道 :">
-        <el-select v-model="form.region" placeholder="请选择">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select v-model="channelId" placeholder="请选择">
+          <el-option label="全部" :value="null"></el-option>
+          <el-option :label="channel.name" :value="channel.id" v-for="(channel, index) in channels" :key="index"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="日期 :">
         <el-date-picker v-model="form.data1" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">筛选</el-button>
+        <!-- button按钮的click事件有个默认参数,当没有指定参数的时候,会默认创建一个无用的数据 -->
+        <el-button type="primary" @click="loadArticles(1)">筛选</el-button>
       </el-form-item>
       </el-form>
     </el-card>
     <el-card class="box-card">
-      <div slot="header" class="clearfix">根据筛选条件共查询到 {{ this.pageSize }} 条结果：</div>
+      <div slot="header" class="clearfix">根据筛选条件共查询到 {{ totalCount }} 条结果：</div>
       <!-- 数据列表 -->
       <!-- table 表格组件
-        1、把需要展示的数组列表数据绑定给 table 组件的 data 属性
-          注意：你不用去 v-for 遍历，它自己会遍历
-        2、设计表格列 el-table-column
-          width 可以设定表格列的宽度
-          label 可以设定列的标题
-          prop  用来设定要渲染的列表项数据字段，只能展示文本
-        3、表格列默认只能渲染普通文本，如果需要展示其它内容，例如放个按钮啊、放个图片啊，那就需要自定义表格列模板了：https://element.eleme.cn/#/zh-CN/component/table#zi-ding-yi-lie-mo-ban
+        1、把需要展示的数组列表数据绑定给table组件的data属性 不用v-for遍历,自己会遍历
+        2、设计表格列 el-table-column width:可以设定表格列的宽度 label:可以设定列的标题 prop:用来设定要渲染的列表项数据字段，只能展示文本
+        3、表格列默认只能渲染普通文本，如果需要展示其它内容(按钮,图片)，此时需要自定义表格列模板
        -->
       <el-table :data="articles" style="width: 100%" class="list-table" size="mini">
         <el-table-column prop="date" label="封面">
           <template slot-scope="scope">
             <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
             <img v-else class="article-cover" src="./no-img.gif" alt="">
-            <!-- 下面的情况是在运行期间动态改变处理的,而本地图片必须在打包的时候就存在 -->
-            <!-- <img class="article-cover" :src="scope.row.cover.images[0] || './no-img.gif'" alt="">  -->
           </template>
         </el-table-column>
         <el-table-column prop="title" label="标题"></el-table-column>
@@ -88,7 +84,7 @@
 </template>
 
 <script>
-import { getArticles } from '@/api/article'
+import { getArticles, getArticleChannels } from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -115,20 +111,26 @@ export default {
         { status: 4, text: '已删除', type: 'danger' }
       ],
       totalCount: 0, // 总数据条数
-      pageSize: 10 // 每页大小
+      pageSize: 10, // 每页大小
+      status: null, // 查询文章的状态
+      channels: [], // 文章列表频道
+      channelId: null // 查询文章的频道
     }
   },
   computed: {},
   watch: {},
   created () {
     this.loadArticles(1)
+    this.loadChannels()
   },
   mounted () {},
   methods: {
     loadArticles (page = 1) {
       getArticles({
         page,
-        per_page: this.pageSize
+        per_page: this.pageSize,
+        status: this.status,
+        channel_id: this.channelId
       }).then(res => {
         // console.log(res)
         // this.articles = res.data.data.results
@@ -142,6 +144,12 @@ export default {
     },
     onCurrentChange (page) {
       this.loadArticles(page)
+    },
+    loadChannels () {
+      getArticleChannels().then(res => {
+        // console.log(res)
+        this.channels = res.data.data.channels
+      })
     }
   }
 }
