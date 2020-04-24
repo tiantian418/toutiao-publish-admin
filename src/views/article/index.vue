@@ -28,11 +28,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="日期 :">
-        <el-date-picker v-model="form.data1" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']"></el-date-picker>
+        <el-date-picker v-model="rangeDate" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
       </el-form-item>
       <el-form-item>
         <!-- button按钮的click事件有个默认参数,当没有指定参数的时候,会默认创建一个无用的数据 -->
-        <el-button type="primary" @click="loadArticles(1)">筛选</el-button>
+        <el-button type="primary" :disabled="loading" @click="loadArticles(1)">筛选</el-button>
       </el-form-item>
       </el-form>
     </el-card>
@@ -44,7 +44,7 @@
         2、设计表格列 el-table-column width:可以设定表格列的宽度 label:可以设定列的标题 prop:用来设定要渲染的列表项数据字段，只能展示文本
         3、表格列默认只能渲染普通文本，如果需要展示其它内容(按钮,图片)，此时需要自定义表格列模板
        -->
-      <el-table :data="articles" style="width: 100%" class="list-table" size="mini">
+      <el-table :data="articles" style="width: 100%" class="list-table" size="mini" v-loading="loading">
         <el-table-column prop="date" label="封面">
           <template slot-scope="scope">
             <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
@@ -66,9 +66,9 @@
         <el-table-column prop="pubdate" label="发布时间"></el-table-column>
         <el-table-column label="操作">
           <!-- 如果需要自定义表格列模板，则把需要自定义的内容放到 template 里面 -->
-          <template>
+          <template slot-scope="scope">
             <el-button size="mini" type="primary" circle icon="el-icon-edit"></el-button>
-            <el-button size="mini" type="danger" circle icon="el-icon-delete"></el-button>
+            <el-button size="mini" circle type="danger" icon="el-icon-delete" @click="onDeleteArticle(scope.row.id)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -78,13 +78,13 @@
         total:设定总数据的条数 默认按照10条每页计算总页码
         page-size:每页显示条目个数
       -->
-      <el-pagination layout="prev, pager, next" :total="totalCount" @current-change="onCurrentChange" :page-size="pageSize" background />
+      <el-pagination layout="prev, pager, next" :total="totalCount" :page-size="pageSize" :disabled="loading" :current-page.sync="page" background @current-change="onCurrentChange"  />
     </el-card>
   </div>
 </template>
 
 <script>
-import { getArticles, getArticleChannels } from '@/api/article'
+import { getArticles, getArticleChannels, deleteArticle } from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -114,7 +114,10 @@ export default {
       pageSize: 10, // 每页大小
       status: null, // 查询文章的状态
       channels: [], // 文章列表频道
-      channelId: null // 查询文章的频道
+      channelId: null, // 查询文章的频道
+      rangeDate: null, // 筛选的日期范围
+      loading: true, // 表单数据加载中
+      page: 1 // 当前页码
     }
   },
   computed: {},
@@ -126,17 +129,23 @@ export default {
   mounted () {},
   methods: {
     loadArticles (page = 1) {
+      // 展示加载中
+      this.loading = true
       getArticles({
         page,
         per_page: this.pageSize,
         status: this.status,
-        channel_id: this.channelId
+        channel_id: this.channelId,
+        begin_pubdate: this.rangeDate ? this.rangeDate[0] : null,
+        edd_pubdate: this.rangeDate ? this.rangeDate[1] : null
       }).then(res => {
         // console.log(res)
         // this.articles = res.data.data.results
         const { results, total_count: totalCount } = res.data.data
         this.articles = results
         this.totalCount = totalCount
+        // 关闭懒加载
+        this.loading = false
       })
     },
     onSubmit () {
@@ -149,6 +158,30 @@ export default {
       getArticleChannels().then(res => {
         // console.log(res)
         this.channels = res.data.data.channels
+      })
+    },
+    onDeleteArticle (articleId) {
+      // console.log(articleId)
+      console.log(articleId.toString())
+      this.$confirm('确认删除吗?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // console.log(articleId.toString());
+        deleteArticle(articleId.toString()).then(res => {
+          // 删除成功,重新渲染数据
+          this.loadArticles(this.page)
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     }
   }
