@@ -162,13 +162,12 @@ export default {
     },
     onDeleteArticle (articleId) {
       // console.log(articleId)
-      console.log(articleId.toString())
+      // console.log(articleId.toString())
       this.$confirm('确认删除吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // console.log(articleId.toString());
         deleteArticle(articleId.toString()).then(res => {
           // 删除成功,重新渲染数据
           this.loadArticles(this.page)
@@ -179,8 +178,8 @@ export default {
         })
       }).catch(() => {
         this.$message({
-          type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          type: 'info'
         })
       })
     }
