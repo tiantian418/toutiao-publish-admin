@@ -67,7 +67,7 @@
         <el-table-column label="操作">
           <!-- 如果需要自定义表格列模板，则把需要自定义的内容放到 template 里面 -->
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" circle icon="el-icon-edit"></el-button>
+            <el-button size="mini" type="primary" circle icon="el-icon-edit" @click="$router.push('/publish?id=' + scope.row.id.toString())"></el-button>
             <el-button size="mini" circle type="danger" icon="el-icon-delete" @click="onDeleteArticle(scope.row.id)"></el-button>
           </template>
         </el-table-column>

@@ -8,7 +8,7 @@ export const getArticles = params => {
     method: 'GET',
     url: '/mp/v1_0/articles',
     // Body参数使用data传
-    // JQuery参数使用params设置
+    // Query参数使用params设置
     // headers参数使用headers设置
     // params: params
     params
@@ -40,5 +40,25 @@ export const addArticle = (data, draft = false) => {
       draft // 是否存为草稿
     },
     data
+  })
+}
+
+// 编辑文章
+export const updateArticle = (articleId, data, draft = false) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/articles/${articleId}`,
+    params: {
+      draft
+    },
+    data
+  })
+}
+
+// 获取指定文章
+export const getArticle = articleId => {
+  return request({
+    method: 'GET',
+    url: `/mp/v1_0/articles/${articleId}`
   })
 }

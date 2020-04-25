@@ -5,7 +5,7 @@
         <!-- 面包屑路径导航 -->
         <el-breadcrumb separator-class="el-icon-arrow-right">
           <el-breadcrumb-item to="/">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>内容管理</el-breadcrumb-item>
+          <el-breadcrumb-item>{{ $route.query.id ? '修改文章' : '发布文章'}}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
       <!-- 表单 -->
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { getArticleChannels, addArticle } from '@/api/article'
+import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
 
 export default {
   name: 'PublishIndex',
@@ -63,6 +63,10 @@ export default {
   watch: {},
   created () {
     this.loadChannels()
+    // 判断路由路径中参数中是否有id,如果有,则请求展示文章内容
+    if (this.$route.query.id) {
+      this.loadArticle()
+    }
   },
   mounted () {},
   methods: {
@@ -73,12 +77,38 @@ export default {
       })
     },
     onPublish (draft = false) {
-      addArticle(this.article, draft).then(res => {
-        console.log(res)
-        this.$message({
-          message: '发表成功',
-          type: 'success'
+      // 如果是编辑文章,则执行修改操作,否则执行发表操作
+      const articleId = this.$route.query.id
+      if (articleId) {
+        // 执行编辑文章
+        updateArticle(articleId, this.article, draft).then(res => {
+          // console.log(res)
+          this.$message({
+            type: 'success',
+            message: `${draft ? '存入草稿' : '修改成功'}`
+          })
+          // 跳转到内容管理页面
+          this.$router.push('/article')
         })
+      } else {
+        // 执行发表文章
+        addArticle(this.article, draft).then(res => {
+          // console.log(res)
+          this.$message({
+            type: 'success',
+            message: `${draft ? '存入草稿' : '发布成功'}`
+          })
+          // 跳转到内容管理页面
+          this.$router.push('/article')
+        })
+      }
+    },
+    // 修改文章:加载文章内容
+    loadArticle () {
+      // console.log('loadArticle')
+      getArticle(this.$route.query.id).then(res => {
+        // 模板绑定展示
+        this.article = res.data.data
       })
     }
   }
