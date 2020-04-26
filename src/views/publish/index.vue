@@ -9,14 +9,14 @@
         </el-breadcrumb>
       </div>
       <!-- 表单 -->
-      <el-form ref="form" :model="article" label-width="40px">
-        <el-form-item label="标题">
+      <el-form ref="form" :model="article" label-width="50px">
+        <el-form-item label="标题 :">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
-          <el-input type="textarea" v-model="article.content"></el-input>
+        <el-form-item label="内容 :">
+          <el-tiptap v-model="article.content" :extensions="extensions" height="350" placeholder="请输入文章内容"></el-tiptap>
         </el-form-item>
-        <el-form-item label="封面">
+        <el-form-item label="封面 :">
           <el-radio-group v-model="article.cover.type">
             <el-radio :label="1">单图</el-radio>
             <el-radio :label="3">三图</el-radio>
@@ -24,7 +24,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道 :">
           <el-select v-model="article.channel_id" placeholder="请选择">
             <el-option :label="channel.name" :value="channel.id" v-for="(channel, index) in channels" :key="index"></el-option>
           </el-select>
@@ -40,23 +40,82 @@
 
 <script>
 import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
+import {
+  ElementTiptap,
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Image,
+  Strike,
+  ListItem,
+  BulletList,
+  OrderedList,
+  TodoItem,
+  TodoList,
+  HorizontalRule,
+  Fullscreen,
+  CodeBlock,
+  TextColor
+} from 'element-tiptap'
+import 'element-tiptap/lib/index.css'
+import { uploadImage } from '@/api/image'
 
 export default {
   name: 'PublishIndex',
-  components: {},
+  components: {
+    'el-tiptap': ElementTiptap
+  },
   props: {},
   data () {
     return {
+      channels: [], // 文章列表频道
       article: {
         title: '', // 文章标题
         content: '', // 文章内容
         cover: { // 文章封面
           type: 0, // 封面类型
           images: [] // 封面图片的地址
-        }
+        },
+        channel_id: null
       },
-      channels: [], // 文章列表频道
-      channel_id: null
+      // 编辑器的 extensions
+      // 它们将会按照你声明的顺序被添加到菜单栏和气泡菜单中
+      extensions: [
+        new Doc(),
+        new Text(),
+        new Paragraph(),
+        new Heading({ level: 5 }), // 标题的级别
+        new Bold({ bubble: true }), // 在气泡菜单中渲染菜单按钮
+        new Image({
+          uploadRequest (file) {
+            // 接口要求Content-Type是multipart/form-data,所有这里使用FormData
+            const fd = new FormData()
+            fd.append('image', file)
+            // 返回Promise对象(因为axios本身就是返回Promise的)
+            return uploadImage(fd).then(res => {
+              // 返回结果
+              // console.log(res)
+              return res.data.data.url
+            })
+          }
+        }),
+        new Underline(), // 下划线
+        new Italic(), // 斜体
+        new Strike(), // 删除线
+        new HorizontalRule(), // 分割线
+        new ListItem(),
+        new BulletList(), // 无序列表
+        new OrderedList(), // 有序列表
+        new TodoItem(),
+        new TodoList(),
+        new Fullscreen(), // 全屏
+        new CodeBlock(), // 代码块
+        new TextColor() // 文本颜色
+      ]
     }
   },
   computed: {},

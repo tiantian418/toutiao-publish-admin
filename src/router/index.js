@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// 在vue中,@表示src目录,就是src路径后面别忘了写 斜杠
+// 在vue中,@表示src目录,就是src路径 后面别忘了写斜杠
 import Login from '@/views/login/'
 import Home from '@/views/home/'
 import Layout from '@/views/layout/'
 import Article from '@/views/article/'
-import Publish from '@/views/publish'
+import Publish from '@/views/publish/'
 
 Vue.use(VueRouter)
 
