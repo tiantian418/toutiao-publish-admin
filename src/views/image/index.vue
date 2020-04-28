@@ -15,19 +15,22 @@
         </el-radio-group>
         <el-button size="mini" type="success" @click="dialogUploadVisible = true">添加素材</el-button>
       </div>
+
       <!-- 图片列表 -->
       <el-row :gutter="10">
-        <el-col :xs="12" :sm="6" :md="6" :lg="4" v-for="(img, index) in images" :key="index">
+        <el-col :xs="12" :sm="6" :md="6" :lg="4" v-for="(img, index) in images" :key="index" class="image-item">
           <el-image style="height: 100px" :src="img.url" fit="cover"></el-image>
-          <div class="image-icons">
-            <span class="el-icon-star-off icon-cang" @click="isCollect(!img.is_collected, img.id)"></span>
-            <span class="el-icon-delete icon-del" @click="delImage(img.id)"></span>
+          <div class="image-action">
+            <el-button type="warning" circle size="small" :icon="img.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'" :loading="img.loading" @click="onCollect(img)"></el-button>
+            <el-button type="danger" circle size="small" icon="el-icon-delete" :loading="img.loading" @click="onDelete(img)"></el-button>
           </div>
         </el-col>
       </el-row>
+
       <!-- 列表分页 -->
-      <el-pagination style="margin-top:15px;" background layout="prev, pager, next" :disabled="loading" :total="totalCount" :page-size="pageSize" :current-page.sync="page" @current-change="onCurrentChange"> </el-pagination>
+      <el-pagination style="margin-top:15px;" background layout="prev, pager, next" :total="totalCount" :page-size="pageSize" :current-page.sync="page" @current-change="onCurrentChange"> </el-pagination>
     </el-card>
+    <!-- 不需要发请求,自己配置 -->
     <el-dialog title="上传素材" :visible.sync="dialogUploadVisible" :append-to-body="true">
       <el-upload class="upload-demo" drag action="http://ttapi.research.itcast.cn/mp/v1_0/user/images" :headers="uploadHeaders" name="image" multiple :show-file-list="false" :on-success="onUploadSuccess">
         <i class="el-icon-upload"></i>
@@ -39,7 +42,7 @@
 </template>
 
 <script>
-import { getImages, isCollectImage } from '@/api/image'
+import { getImages, collectImage, deleteImage } from '@/api/image'
 
 export default {
   name: 'ImageIndex',
@@ -57,43 +60,50 @@ export default {
       loading: false, // 是否显示加载中
       pageSize: 12, // 每页显示条数
       totalCount: 0, // 总数据条数
-      page: 1, // 当前页码
-      imageCollect: false // 当前图片是否收藏
+      page: 1 // 当前页码
     }
   },
   computed: {},
   watch: {},
   created () {
-    this.loadImages(false)
+    // 页面初始化加载第一页
+    this.loadImages(1)
   },
   mounted () {},
   methods: {
-    loadImages (collect = false, page) {
-      // 加载中
-      this.loading = true
+    // 有默认值的参数作为最后一个参数
+    loadImages (page = 1) {
+      // 重置高亮代码,防止数据和页码不对应
+      this.page = page
       getImages({
         collect: this.collect,
         page,
         per_page: this.pageSize
       }).then(res => {
         // console.log(res)
-        const { results, total_count: totalCount } = res.data.data
+        const results = res.data.data.results
+        results.forEach(img => {
+          // 控制每个收藏按钮的loading状态
+          img.loading = false
+        })
         this.images = results
-        this.totalCount = totalCount
-        // 关闭加载中
-        this.loading = false
+        this.totalCount = res.data.data.total_count
       })
     },
 
     onCollectChange (value) {
-      this.loadImages(value)
+      this.loadImages(1, value)
     },
 
     onUploadSuccess () {
       // 关闭对话框
       this.dialogUploadVisible = false
       // 重新渲染素材列表
-      this.loadImages(false)
+      this.loadImages(this.page)
+      this.$message({
+        type: 'success',
+        message: '上传成功'
+      })
     },
 
     onCurrentChange (page) {
@@ -101,11 +111,23 @@ export default {
       this.loadImages(page)
     },
 
-    isCollect (isCollected, imageId) {
-      isCollectImage(isCollected, imageId).then(res => {
-        // console.log(res)
-        // 收藏成功,刷新页面
+    onCollect (img) {
+      // 展示loading
+      img.loading = true
+      collectImage(img.id, !img.is_collected).then(res => {
+        // 更新视图状态
+        img.is_collected = !img.is_collected
+        // 关闭loading
+        img.loading = false
+      })
+    },
+
+    onDelete (img) {
+      img.loading = true
+      deleteImage(img.id).then(res => {
+        // 重新加载数据列表
         this.loadImages(this.page)
+        img.loading = false
       })
     }
   }
@@ -118,16 +140,22 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-.image-icons {
+
+.image-item {
   position: relative;
-  // bottom: 4px;
-  // margin: 0 auto;
-  // width:90%;
-  // height: 28px;
-  // line-height: 28;
-  // text-align: center;
-  .icon-cang, .icon-del {
-    margin: 0, 15px;
-  }
+}
+
+.image-action {
+  font-size: 25px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: #fff;
+  height: 40px;
+  background-color: rgba(204, 204, 204, .5);
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  right: 5px;
 }
 </style>
