@@ -33,7 +33,7 @@
 <script>
 import AppAside from './components/aside'
 import { getUserProfile } from '@/api/user'
-// import AppHeader from './components/header'
+import globalBus from '@/utils/global-bus'
 
 export default {
   name: 'LayoutIndex',
@@ -50,6 +50,13 @@ export default {
   created () {
     // 组件初始化后,请求获取用户资料
     this.loadUserProfile()
+
+    // 注册自定义事件,当事件发布以后,就会调用
+    globalBus.$on('update-user', (data) => {
+      // this.user = data  // 不能这么做,对象之间赋值的是引用,会呆滞相互影响的问题
+      this.user.name = data.name
+      this.user.photo = data.photo
+    })
   },
   methods: {
     // 除了登录接口,其它所有的接口都需要授权
