@@ -23,6 +23,10 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <!-- v-model="article.cover.images[index]" 给子组件传递了一个名字叫 value 的数据 :value="article.cover.images[index]" 默认监听 input 事件，当事件发生，它会让绑定数据 = 事件参数 @input="article.cover.images[index] = 事件参数" -->
+          <template v-if="article.cover.type > 0">
+            <upload-cover :key="cover"  v-for="(cover, index) in article.cover.type" v-model="article.cover.images[index]" />
+          </template>
         </el-form-item>
         <el-form-item label="频道 :" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择">
@@ -39,6 +43,7 @@
 </template>
 
 <script>
+import UploadCover from './components/upload-cover'
 import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
 import {
   ElementTiptap,
@@ -67,7 +72,8 @@ import { uploadImage } from '@/api/image'
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTiptap
+    'el-tiptap': ElementTiptap,
+    UploadCover
   },
   props: {},
   data () {
@@ -77,7 +83,7 @@ export default {
         title: '', // 文章标题
         content: '', // 文章内容
         cover: { // 文章封面
-          type: 0, // 封面类型
+          type: 1, // 封面类型
           images: [] // 封面图片的地址
         },
         channel_id: null
@@ -199,6 +205,9 @@ export default {
         // 模板绑定展示
         this.article = res.data.data
       })
+    },
+    onUpdateCover (index, url) {
+      this.article.cover.images[index] = url
     }
   }
 }
