@@ -9,7 +9,7 @@
         </el-breadcrumb>
       </div>
       <!-- 表单 -->
-      <el-form ref="publish-form"  label-width="60px" :model="article" :rules="formRules">
+      <el-form ref="publish-form"  label-width="70px" :model="article" :rules="formRules">
         <el-form-item label="标题 :" prop="title">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
